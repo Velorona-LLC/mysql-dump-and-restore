@@ -26,33 +26,46 @@ This repository contains scripts to backup and restore MySQL databases, particul
 
 ## Configuration
 
-Create a `.env.sh` file in the project root with your database credentials:
+Configuration is provided via environment variables. A sample file `/.env.example` is included — copy it to `/.env` and edit values before running the scripts:
 
 ```bash
-# Source Database Configuration (for backup)
-export SOURCE_DB_USER="your_username"
-export SOURCE_DB_PASSWORD="your_password"
-export SOURCE_DB_HOST="source-db-host.amazonaws.com"
-export SOURCE_DB_PORT="3306"
-export SOURCE_DB_NAME="your_database_name"
+# Copy the example and edit
+cp .env.example .env
 
-# Target Database Configuration (for restore)
-export TARGET_DB_USER="your_username"
-export TARGET_DB_PASSWORD="your_password"
-export TARGET_DB_HOST="target-db-host.amazonaws.com"
-export TARGET_DB_PORT="3306"
-export TARGET_DB_NAME="your_database_name"
-export TARGET_DB_BACKUP_NAME="your_database_name_backup"
-
-# Dump file location
-export DUMP_FILE="./dump.sql"
-
-# Optional: Table filtering (uncomment to use)
-# export SELECTED_TABLES="table1 table2 table3"  # Only dump these tables
-# export IGNORED_TABLES="logs audit_trail"       # Ignore these tables
+# Then edit `.env` and set your credentials and options.
 ```
 
-**Important**: Add `.env.sh` to your `.gitignore` to protect sensitive credentials!
+The repository also provides `./.env.sh` which loads `./.env` and exports variables used by `backup.sh` and `restore.sh`.
+
+Example variables (edit in `/.env`):
+
+```bash
+# Source (backup) configuration
+SOURCE_DB_USER=root
+SOURCE_DB_PASSWORD=Password@123
+SOURCE_DB_HOST=localhost
+SOURCE_DB_PORT=3306
+SOURCE_DB_NAME=db
+
+# Dump behaviour
+DUMP_TYPE=both  # "schema", "data", or "both"
+TABLE_MODE=      # "" (all), "selected", or "ignore"
+SELECTED_TABLES= # space-separated table names
+IGNORED_TABLES=  # space-separated table names
+
+# Target (restore) configuration
+TARGET_DB_USER=root
+TARGET_DB_PASSWORD=Password@123
+TARGET_DB_HOST=localhost
+TARGET_DB_PORT=3306
+TARGET_DB_NAME=db
+TARGET_DB_BACKUP_NAME=${TARGET_DB_NAME}_backup
+
+# Dump file
+DUMP_FILE=dump.sql
+```
+
+**Important**: Add `/.env` (or `/.env.sh` if you create that) to your `.gitignore` to keep secrets out of version control.
 
 ## Usage
 
@@ -113,25 +126,28 @@ The restore process:
 
 ## Environment Variables
 
-### Backup (Source Database)
-- `SOURCE_DB_USER` - Database username
-- `SOURCE_DB_PASSWORD` - Database password
-- `SOURCE_DB_HOST` - Database host
-- `SOURCE_DB_PORT` - Database port (default: 3306)
-- `SOURCE_DB_NAME` - Database name to backup
-- `SELECTED_TABLES` - Space-separated list of tables to include
-- `IGNORED_TABLES` - Space-separated list of tables to exclude
+Below are the environment variables used by the scripts and their defaults (as provided in `/.env.sh` when not set):
 
-### Restore (Target Database)
-- `TARGET_DB_USER` - Database username
-- `TARGET_DB_PASSWORD` - Database password
-- `TARGET_DB_HOST` - Database host
-- `TARGET_DB_PORT` - Database port (default: 3306)
-- `TARGET_DB_NAME` - Database name to restore to
-- `TARGET_DB_BACKUP_NAME` - Name for backup of existing database
+- `SOURCE_DB_USER`: Database username (default: `root`)
+- `SOURCE_DB_PASSWORD`: Database password (default: `Password@123`) — keep secrets out of VCS
+- `SOURCE_DB_HOST`: Database host (default: `localhost`)
+- `SOURCE_DB_PORT`: Database port (default: `3306`)
+- `SOURCE_DB_NAME`: Database name to backup (default: `db`)
+- `DUMP_TYPE`: Dump type — `schema`, `data`, or `both` (default: `both`)
+- `TABLE_MODE`: Table mode: `` (all tables), `selected`, or `ignore` (default: empty)
+- `SELECTED_TABLES`: Space-separated list of tables to include (used when `TABLE_MODE=selected`)
+- `IGNORED_TABLES`: Space-separated list of tables to exclude (used when `TABLE_MODE=ignore`)
 
-### General
-- `DUMP_FILE` - Path to dump file (default: ./dump.sql)
+- `TARGET_DB_USER`: Database username for restore (default: `root`)
+- `TARGET_DB_PASSWORD`: Database password for restore (default: `Password@123`) — keep secrets out of VCS
+- `TARGET_DB_HOST`: Target DB host (default: `localhost`)
+- `TARGET_DB_PORT`: Target DB port (default: `3306`)
+- `TARGET_DB_NAME`: Target database name for restore (default: `db`)
+- `TARGET_DB_BACKUP_NAME`: Name for backup of existing target DB (default: `${TARGET_DB_NAME}_backup`)
+
+- `DUMP_FILE`: Path to dump file (default: `./dump.sql`)
+
+Note: The `/.env.sh` script will `set -a` and source `./.env` to export variables. Using `/.env.example` and `/.env` keeps credentials out of the repository while documenting defaults.
 
 ## Examples
 

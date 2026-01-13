@@ -1,13 +1,17 @@
 #!/bin/bash
-
 # Environment variables for database backup and restore scripts
+
+# Automatically export all variables defined in the .env file
+set -a 
+. ./.env
+set +a
 
 # Source database configuration (for backup.sh)
 export SOURCE_DB_USER=${SOURCE_DB_USER:-root}
-export SOURCE_DB_PASSWORD="Password@123"
+export SOURCE_DB_PASSWORD=${SOURCE_DB_PASSWORD}
 export SOURCE_DB_HOST=${SOURCE_DB_HOST:-localhost}
 export SOURCE_DB_PORT=${SOURCE_DB_PORT:-3306}
-export SOURCE_DB_NAME="velorona_local"
+export SOURCE_DB_NAME=${SOURCE_DB_NAME:-db}
 # Dump type: "schema", "data", or "both" (for backup.sh)
 export DUMP_TYPE=${DUMP_TYPE:-both}
 # Table filtering options (for backup.sh)
@@ -19,7 +23,7 @@ export IGNORED_TABLES=${IGNORED_TABLES:-}
 
 # Target database configuration (for restore.sh)
 export TARGET_DB_USER=${TARGET_DB_USER:-root}
-export TARGET_DB_PASSWORD="Password@123"
+export TARGET_DB_PASSWORD=${TARGET_DB_PASSWORD}
 export TARGET_DB_HOST=${TARGET_DB_HOST:-localhost}
 export TARGET_DB_PORT=${TARGET_DB_PORT:-3306}
 export TARGET_DB_NAME=${TARGET_DB_NAME:-db}
